@@ -16,7 +16,7 @@ local module = {}
 module.new = function(...)
 	local args = { ... }
 	local var = #args > 1 and args or args[1]
-	local uid = getId(var)
+	local uid = getUid(var)
 	assert(uid)
 	local size = sizeof(var)
 	assert(size <= 1024) -- 1mb
@@ -114,7 +114,7 @@ function write(packet: buffer, offset: number, uid: number, value: any)
 		for i = 1, #tbl do
 			local v = tbl[i]
 			local size = sizeof(v)
-			uid = getId(v)
+			uid = getUid(v)
 			write(packet, offset + 1, uid, v)
 			offset += size
 			i += 1
@@ -201,7 +201,7 @@ function format(num: number)
 	return fstr
 end
 
-function getId(value: any): number
+function getUid(value: any): number
 	local uid = uids[typeof(value)] or (typeof(value) == "table" and uids.tblop or 0)
 	return uid
 end
