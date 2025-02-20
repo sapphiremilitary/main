@@ -7,4 +7,4 @@ local Remote = require(Classes.Remote)
 
 wait(3)
 local event = Remote.new("chat")
-event:FireServer(":ff")
+event:FireServer(":spawn")
