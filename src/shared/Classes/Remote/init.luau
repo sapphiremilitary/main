@@ -4,7 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvent")
-assert(remoteEvent)
 
 local Buffer = require(script.Buffer)
 
