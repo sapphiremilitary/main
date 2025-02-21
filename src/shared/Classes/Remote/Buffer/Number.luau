@@ -23,7 +23,13 @@ end
 
 function module:GetBytes(x: number)
 	local bits = math.log(math.max(1, math.abs(x)), 2)
-	local len = math.max(1, math.ceil(math.ceil(bits / 8) / 4) * 4)
+
+	local len
+	local i = 0
+	while not table.find({1, 2, 4, 8}, len) do
+		len = math.max(math.ceil(bits / 8)) + i
+		i += 1
+	end
 
 	local _, r = math.modf(x)
 	if not (r == 0) then -- x is a float, clamp to 4 or 8 bytes
