@@ -25,7 +25,7 @@ function module:GetBytes(x: number)
 	local bits = math.log(math.max(1, math.abs(x)), 2)
 
 	local len = math.max(1, math.ceil(bits / 8))
-	local t = {1, 2, 4, 8}
+	local t = { 1, 2, 4, 8 }
 	while not table.find(t, len) and len < 8 do -- ROBLOX only has read/write operations for 1, 2, 4, and 8 byte numbers.
 		len += 1
 	end
