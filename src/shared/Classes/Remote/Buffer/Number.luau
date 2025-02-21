@@ -27,7 +27,7 @@ function module:GetBytes(x: number)
 	local len
 	local i = 0
 	while not table.find({1, 2, 4, 8}, len) do
-		len = math.max(math.ceil(bits / 8)) + i
+		len = math.max(1, math.ceil(bits / 8)) + i
 		i += 1
 	end
 
