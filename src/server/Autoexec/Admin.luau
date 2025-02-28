@@ -1,80 +1,50 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 
 local Classes = ReplicatedStorage:WaitForChild("Classes")
-local Message = require(Classes.Message)
+local Callback = require(Classes.Callback)
 local Remote = require(Classes.Remote)
 
 local Resources = ReplicatedStorage:WaitForChild("Resources")
 local Commands = require(Resources.Commands)
-local Match = require(Resources.Match)
 
 local module = {}
 
 function module:init()
-	Remote:BindToHeader("verify", verify)
-	Remote:BindToHeader("chat", parse)
+	local c = Callback.new("chat", exec)
+	Remote:BindToHeader("char", c)
 end
 
-function verify(plr)
-	local message = Message.new("verify", RunService:IsStudio(), true)
-	message:SendTo({ plr })
-end
+function exec(tbl: {string}, plr: Player)
+	local msg = tbl[1]
+	assert(msg and msg:match("^:") and #msg > 1) -- msg is a command
 
-function parse(plr, msg: string)
-	local function random()
-		local plrs = Players:GetPlayers()
-		local r = plrs[math.random(1, #plrs)]
-		return r
+	-- splitting message into arguments
+	msg = msg:sub(2, #msg)
+	local args = {}
+	for v in msg:gmatch("[%w%p%%]+") do
+		table.insert(args, v)
 	end
 
-	local function isplit(str: string)
-		local s = {}
-		for word in str:gmatch("%w+") do
-			table.insert(s, word)
-		end
-		return s
+	-- finding command
+	local cmd
+	local k, v = next(Commands)
+	while not cmd and v do
+		cmd = table.find(v.words, args[1]) and v
+		k, v = next(Commands, k)
+	end
+	assert(cmd)
+	table.remove(args, 1)
+
+	-- getting expected argument of command (converts our strings into a type)
+	local kv = {}
+	for i, find in cmd.fetch do
+		local s = args[i]
+		table.insert(kv, find(s, plr))
 	end
 
-	if msg:match("^:") and #msg > 1 then
-		local sub = msg:sub(2, #msg)
-		local split = isplit(sub)
-
-		local str = split[1]
-		local k, v = next(Commands)
-		local cmd
-		while not cmd and k do
-			cmd = table.find(v.words, str) and v
-			k, v = next(Commands, k)
-		end
-
-		if cmd then
-			local plrs = {}
-			if split[2] then
-				for id in split[2]:gmatch("%w+") do
-					if id == "me" then
-						table.insert(plrs, plr)
-					elseif id == "random" then
-						local r = random()
-						table.insert(plrs, r)
-					else
-						local m = Match(id, Players:GetPlayers())
-						table.insert(plrs, m)
-					end
-				end
-			else
-				plrs = { plr }
-			end
-
-			for _, plr in plrs do
-				local t = split[3]
-				cmd.func(plr, t)
-			end
-		end
-	end
+	cmd.call(kv, cmd.func)
 end
 
 return module

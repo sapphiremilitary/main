@@ -34,7 +34,13 @@ end
 
 function module:Read(packet: buffer)
 	local v = read(packet, 0)
-	return v
+
+	local d = {}
+	d.header = v[1]
+	table.remove(v, 1)
+	d.value = { unpack(v) }
+
+	return d
 end
 
 function read(packet: buffer, o: number): (any, number)
@@ -205,7 +211,7 @@ end
 
 function getUid(v)
 	local t = typeof(v)
-	local uid = uids[t] or t == "table" and uids.tblop or 0
+	local uid = uids[t] or t == "table" and uids.tblop or math.huge
 	return uid
 end
 

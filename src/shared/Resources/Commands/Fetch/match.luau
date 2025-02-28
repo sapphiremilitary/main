@@ -1,13 +1,13 @@
 --!strict
 
-return function(str: string, list: { Instance } )
+return function(str: string, tbl: { Instance })
     str = string.lower(str)
     local sub = str:sub(1, 1)
     local i = 1
 
     local m = {}
     local function imatch()
-        for _, obj in list do
+        for _, obj in tbl do
             local ns = obj.Name:sub(1, i)
             ns = string.lower(ns)
             local p = `^{sub}`
@@ -17,7 +17,7 @@ return function(str: string, list: { Instance } )
 
     imatch()
     while #m > 1 and #str > 1 do
-        list = {}
+        tbl = {}
         i += 1
         imatch()
     end

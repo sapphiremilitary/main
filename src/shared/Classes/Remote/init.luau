@@ -8,6 +8,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local Services = ReplicatedStorage:WaitForChild("Services")
+local Pcall = require(Services.Pcall)
+
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvent")
 
 local Buffer = require(script.Buffer)
@@ -17,52 +20,43 @@ local module = {}
 module.new = function(header: string)
 	local event = {}
 
+	local function call(rs: boolean, d: {}, f: (...any) -> (), t)
+		assert(rs)
+		local p = Buffer.new(header, unpack(d))
+		local _ = t and f(remoteEvent, t, p) or f(remoteEvent, p)
+	end
+
 	-- Server -> Client
 	function event:FireClient(plr, ...)
-		assert(RunService:IsServer())
-		local packet = Buffer.new(header, ...)
-		remoteEvent:FireClient(plr, packet)
+		Pcall:Try(call, RunService:IsServer(), { ... }, remoteEvent.FireClient, plr)
 	end
 
 	-- Client -> Server
 	function event:FireServer(...)
-		assert(RunService:IsClient())
-		local packet = Buffer.new(header, ...)
-		remoteEvent:FireServer(packet)
+		Pcall:Try(call, RunService:IsClient(), { ... }, remoteEvent.FireServer)
 	end
 
 	return event
 end
 
-function module:BindToHeader(header: string, f: (...any) -> ())
-	local function decode(packet: buffer, plr: Player?)
-		local data = Buffer:Read(packet)
-		
-
-
-		if data[1] == header then
-			table.remove(data, 1)
-			f(plr, unpack(data))
-		elseif data == header then
-			f(plr)
-		end
+function module:BindToHeader(header: string, callback: any)
+	local function call(p: buffer, ...)
+		assert(typeof(p) == "buffer")
+		local d = Buffer:Read(p)
+		callback(d.header, d.value, ...)
 	end
 
-	local function readc(packet: any)
-		decode(packet)
+	local function tryl(p: buffer)
+		Pcall:Try(call, p)
 	end
 
-	local function reads(plr: Player, packet: any)
-		if typeof(packet) == "buffer" and buffer.len(packet) < 1024 then
-			decode(packet, plr)
-		else -- player is exploiting
-
-		end
+	local function trys(plr: Player, p: buffer)
+		Pcall:Try(call, p, plr)
 	end
 
-	local c = RunService:IsClient() and remoteEvent.OnClientEvent:Connect(readc)
-		or remoteEvent.OnServerEvent:Connect(reads)
-	return c -- returns connection so we can disconnect if needed
+	local c = RunService:IsServer() and remoteEvent.OnServerEvent:Connect(trys)
+		or remoteEvent.OnClientEvent:Connect(tryl)
+	return c
 end
 
 return module

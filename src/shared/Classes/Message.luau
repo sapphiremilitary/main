@@ -16,6 +16,9 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local Services = ReplicatedStorage:WaitForChild("Services")
+local Pcall = require(Services.Pcall)
+
 local messages = ReplicatedStorage:WaitForChild("Messages")
 
 local module = {}
@@ -47,57 +50,58 @@ module.new = function(header: string, value: any, deleteOnRead: boolean?)
 	return msg
 end
 
-function module:BindToHeader(header: string, func: (any) -> any)
-	local function invoke(object: Instance)
-		assert(object:IsA("ForceField"))
-		local snip = module:Read(object)
-		if snip.header == header then
-			func(snip.value)
-		end
+function module:BindToHeader(header: string, callback: any)
+	local function call(m: ForceField)
+		assert(m:IsA("ForceField"))
+		local c = module:Read(m)
+		callback(c.header, c.value)
 	end
 
-	local c = messages.ChildAdded:Connect(invoke)
+	local function try(m: ForceField)
+		Pcall:Try(call)
+	end
+
+	local c = messages.ChildAdded:Connect(try)
 	return c
 end
 
 function module:Read(msg: ForceField)
-	local header, value, deleteOnRead, recipients =
+	local h, v, dor, rec =
 		msg:GetAttribute("header") :: string,
 		msg:GetAttribute("value") :: any,
 		msg:GetAttribute("deleteOnRead") :: boolean?,
 		msg:GetAttribute("recipients") :: string?
 
-	if recipients then
+	if rec then
 		assert(RunService:IsClient())
 
-		local temp = HttpService:JSONDecode(recipients)
+		local temp = HttpService:JSONDecode(rec)
 		local i = table.find(temp, Players.LocalPlayer.Name)
 		assert(i)
 	end
 
-	value = typeof(value) == "string" and HttpService:JSONDecode(value) or value
-	if deleteOnRead then
+	v = typeof(v) == "string" and HttpService:JSONDecode(v) or v
+	if dor then
 		msg:Destroy()
 	end
 
-	local snippetObject = {
-		header = header,
-		value = value,
-	}
+	local c = {}
+	c.header = h
+	c.value = v
 
-	return snippetObject
+	return c
 end
 
-function new(header: string, value: any, deleteOnRead: boolean?, plrs: string?)
-	local forceField = Instance.new("ForceField") -- ForceField is the quickest Instance to create
-	forceField.Name = HttpService:GenerateGUID(true)
-	forceField:SetAttribute("header", header)
-	forceField:SetAttribute("value", value)
-	forceField:SetAttribute("deleteOnRead", deleteOnRead)
-	forceField:SetAttribute("recipients", plrs)
-	forceField.Parent = messages
-	Debris:AddItem(forceField, 5)
-	return forceField
+function new(h: string, v: any, dor: boolean?, plrs: string?)
+	local ff = Instance.new("ForceField") -- ForceField is the quickest Instance to create
+	ff.Name = HttpService:GenerateGUID(true)
+	ff:SetAttribute("header", h)
+	ff:SetAttribute("value", v)
+	ff:SetAttribute("deleteOnRead", dor)
+	ff:SetAttribute("recipients", plrs)
+	ff.Parent = messages
+	Debris:AddItem(ff, 5)
+	return ff
 end
 
 function checkType(var: any): any
