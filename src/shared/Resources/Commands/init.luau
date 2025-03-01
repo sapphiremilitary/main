@@ -42,6 +42,12 @@ local module = {
 		func = require(script.Functions.team),
 		words = { "team" },
 	},
+	{
+		call = Call.recursive,
+		fetch = { Fetch.Player, Fetch.Player },
+		func = require(script.Functions.teleport),
+		words = { "tp", "teleport" },
+	},
 } :: {
 	{
 		call: (...any) -> (),

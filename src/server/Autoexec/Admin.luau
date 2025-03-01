@@ -13,7 +13,7 @@ local module = {}
 
 function module:init()
 	local c = Callback.new("chat", exec)
-	Remote:BindToHeader("char", c)
+	Remote:BindToHeader(c)
 end
 
 function exec(tbl: {string}, plr: Player)

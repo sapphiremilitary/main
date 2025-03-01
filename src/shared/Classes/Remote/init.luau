@@ -39,7 +39,7 @@ module.new = function(header: string)
 	return event
 end
 
-function module:BindToHeader(header: string, callback: any)
+function module:BindToHeader(callback: any)
 	local function call(p: buffer, ...)
 		assert(typeof(p) == "buffer")
 		local d = Buffer:Read(p)

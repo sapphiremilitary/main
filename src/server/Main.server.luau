@@ -1,32 +1,26 @@
 --!strict
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local autoexec = ServerScriptService:FindFirstChild("Autoexec")
-if not autoexec then
-	autoexec = Instance.new("Folder", ServerScriptService)
-	autoexec.Name = "autoexec"
+local autoexec = ServerScriptService:WaitForChild("Autoexec")
+
+local Services = ReplicatedStorage:WaitForChild("Services")
+local Pcall = require(Services.Pcall)
+
+function init(m: ModuleScript)
+	assert(m and m:IsA("ModuleScript"))
+	local tbl = require(m) :: { init: () -> () }
+	assert(tbl.init)
+	tbl.init()
 end
 
-function init(module: ModuleScript)
-	assert(module:IsA("ModuleScript"))
-	local name = module:GetFullName()
-	local m = require(module) :: { init: (self: any) -> any }
-	assert(m.init)
-	local c = os.clock()
-	m:init()
-	print(`{name} - {os.clock() - c} ms`)
+function try(m: Instance)
+	Pcall:Try(init, m)
 end
 
-function call(module: ModuleScript)
-	local _, err = pcall(init :: (ModuleScript) -> string?, module)
-	if err then
-		warn(err)
-	end
+local c = autoexec:GetChildren()
+for _, m in c do
+	try(m)
 end
-
-local modules = autoexec:GetChildren() :: { ModuleScript }
-for _, module in modules do
-	call(module)
-end
-autoexec.ChildAdded:Connect(call)
+autoexec.ChildAdded:Connect(try)

@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Classes = ReplicatedStorage:WaitForChild("Classes")
+local Callback = require(Classes.Callback)
 local Message = require(Classes.Message)
 local Remote = require(Classes.Remote)
 
@@ -17,10 +18,11 @@ function module:GetResponse(header: string, ...)
     local function set(...)
         v = {...}
     end
+    local cb = Callback.new(header, set)
 
     local event = Remote.new(header)
     event:FireServer(...)
-    local t = Message:BindToHeader(header, set)
+    local t = Message:BindToHeader(cb)
     local c = os.clock()
     repeat
         task.wait()

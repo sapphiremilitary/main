@@ -1,15 +1,5 @@
 --!strict
 
-type message = {
-	Send: (self: any) -> (),
-	SendTo: (self: any, { Player }) -> (),
-}
-
-type snippet = {
-	header: string,
-	value: any,
-}
-
 local Debris = game:GetService("Debris")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -27,7 +17,7 @@ module.new = function(header: string, value: any, deleteOnRead: boolean?)
 	value = checkType(value)
 	assert(value)
 
-	local msg = {} :: message
+	local msg = {}
 
 	local function create(plrs: any)
 		plrs = plrs or {}
@@ -50,7 +40,7 @@ module.new = function(header: string, value: any, deleteOnRead: boolean?)
 	return msg
 end
 
-function module:BindToHeader(header: string, callback: any)
+function module:BindToHeader(callback: any)
 	local function call(m: ForceField)
 		assert(m:IsA("ForceField"))
 		local c = module:Read(m)
