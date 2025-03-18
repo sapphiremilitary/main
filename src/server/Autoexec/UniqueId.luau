@@ -7,7 +7,7 @@ local UniqueId = require(Services.UniqueId)
 
 local module = {}
 
-module.init = function()
+function module:init()
     local function reg(o: Instance)
         UniqueId:SetUID(o)
     end
