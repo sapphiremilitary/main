@@ -1,5 +1,4 @@
 --!strict
--- provides functionality for client to server requests (RemoteFunctions)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")

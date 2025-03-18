@@ -2,50 +2,50 @@
 
 local Call = require(script.Call)
 local Fetch = require(script.Fetch)
+local Functions = require(script.Functions)
 
 local module = {
 	{
 		call = Call.recursive,
 		fetch = { Fetch.Player },
-		func = require(script.Functions.ff),
+		func = Functions.ff,
 		words = { "ff", "forcefield" },
 	},
 	{
 		call = Call.recursive,
 		fetch = { Fetch.Player },
-		func = require(script.Functions.unff),
+		func = Functions.unff,
 		words = { "unff", "unforcefield" },
 	},
 	{
 		call = Call.recursive,
 		fetch = { Fetch.Player },
-		func = require(script.Functions.respawn),
+		func = Functions.respawn,
 		words = { "spawn", "respawn" },
 	},
 	{
 		call = Call.recursive,
 		fetch = { Fetch.Player },
-		func = require(script.Functions.refresh),
+		func = Functions.refresh,
 		words = { "re", "refresh" },
 	},
 	{
 		call = Call.recursive,
 		fetch = { Fetch.Player, Fetch.Unpack },
 		filter = true,
-		func = require(script.Functions.kick),
-		power = true,
+		func = Functions.kick,
 		words = { "kick" },
 	},
 	{
 		call = Call.recursive,
 		fetch = { Fetch.Player, Fetch.Team },
-		func = require(script.Functions.team),
+		func = Functions.team,
 		words = { "team" },
 	},
 	{
 		call = Call.recursive,
 		fetch = { Fetch.Player, Fetch.Player },
-		func = require(script.Functions.teleport),
+		func = Functions.teleport,
 		words = { "tp", "teleport" },
 	},
 } :: {

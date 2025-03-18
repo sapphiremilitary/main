@@ -4,16 +4,21 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Classes = ReplicatedStorage:WaitForChild("Classes")
 local Callback = require(Classes.Callback)
+local Message = require(Classes.Message)
 local Remote = require(Classes.Remote)
 
 local Resources = ReplicatedStorage:WaitForChild("Resources")
 local Commands = require(Resources.Commands)
 
+local Power = require(script.Power)
+
 local module = {}
 
 function module:init()
-	local c = Callback.new("chat", exec)
-	Remote:BindToHeader(c)
+	local chat = Callback.new("chat", exec)
+	Remote:BindToHeader(chat)
+
+	
 end
 
 function exec(tbl: {string}, plr: Player)

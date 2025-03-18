@@ -2,13 +2,15 @@
 
 local module = {}
 
-function module:Try(f: any, ...)
-    local s, v = pcall(f, ...)
-    if not s then
-        warn(v)
-    end
+function module:Try(f: any, ...): (...any)
+	local a = { pcall(f, ...) } -- varargs
+    local s = a[1]
+	if not s then
+        local err = a[2]
+		warn(err)
+	end
 
-    return s, v
+	return unpack(a)
 end
 
 return module
