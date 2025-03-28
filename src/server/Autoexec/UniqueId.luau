@@ -12,10 +12,10 @@ function module:init()
         UniqueId:SetUID(o)
     end
 
-    for _, o in workspace:GetChildren() do
+    for _, o in workspace:GetDescendants() do
         task.defer(reg, o)
     end
-    workspace.ChildAdded:Connect(reg)
+    workspace.DescendantAdded:Connect(reg)
 end
 
 return module
