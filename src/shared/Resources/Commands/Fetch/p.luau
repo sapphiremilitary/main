@@ -1,7 +1,7 @@
 --!strict
 
 local Fetch = script.Parent
-local match = require(Fetch.match)
+local Match = require(Fetch.Match)
 
 local Teams = game:GetService("Teams")
 
@@ -10,7 +10,7 @@ return function(str: string)
     assert(s)
     str = s
     
-    local t = match(str, Teams:GetTeams())
+    local t = Match(str, Teams:GetTeams())
     assert(t and t:IsA("Team"))
     local plrs = t:GetPlayers()
     

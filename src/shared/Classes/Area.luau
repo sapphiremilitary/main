@@ -8,7 +8,7 @@ local PlayerFromHit = require(Functions.PlayerFromHit)
 
 local module = {}
 
-module.new = function(cframe: CFrame, size: Vector3)
+module.new = function(cframe: CFrame, size: Vector3, rate: number)
 	local a = {}
 	a.Entered = Instance.new("BindableEvent")
 	a.Removed = Instance.new("BindableEvent")
@@ -18,6 +18,10 @@ module.new = function(cframe: CFrame, size: Vector3)
 		e = false
 		a.Entered:Destroy()
 		a.Removed:Destroy()
+	end
+
+	function a:Move(to: CFrame)
+		cframe = to
 	end
 
 	local function chars()
@@ -39,7 +43,6 @@ module.new = function(cframe: CFrame, size: Vector3)
 
 			local h = workspace:GetPartBoundsInBox(cframe, size, p)
 			local l = { PlayerFromHit(unpack(h)) }
-
 			if #l > #i then
 				a.Entered:Fire(l)
 			elseif #l < #i then
@@ -47,7 +50,7 @@ module.new = function(cframe: CFrame, size: Vector3)
 			end
 			i = l
 
-			task.wait(0.1) -- preventing race conditions
+			task.wait(rate) -- preventing race conditions
 		end
 	end
 	task.spawn(listen)

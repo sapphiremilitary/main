@@ -1,8 +1,6 @@
 --!strict
 
-local module = {}
-
-function module:Try(f: any, ...): (...any)
+return function(f: any, ...): (...any)
 	local a = { pcall(f, ...) } -- varargs
     local s = a[1]
 	if not s then
@@ -12,5 +10,3 @@ function module:Try(f: any, ...): (...any)
 
 	return unpack(a)
 end
-
-return module

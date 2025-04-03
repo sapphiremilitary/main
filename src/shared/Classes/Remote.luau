@@ -1,19 +1,15 @@
 --!strict
---[[
-	Provides a method for sending data to the server or client. When FireClient or FireServer are invoked,
-	the supplied arguments are packed into a buffer and sent. Conversely, the BindToHeader method is used to read
-	the data being sent.
-]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local Services = ReplicatedStorage:WaitForChild("Services")
-local Pcall = require(Services.Pcall)
+local Functions = ReplicatedStorage:WaitForChild("Functions")
+local Pcall = require(Functions.Pcall)
+
+local Classes = ReplicatedStorage:WaitForChild("Classes")
+local Buffer = require(Classes.Buffer)
 
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvent")
-
-local Buffer = require(script.Buffer)
 
 local module = {}
 
@@ -28,12 +24,12 @@ module.new = function(header: string)
 
 	-- Server -> Client
 	function event:FireClient(plr, ...)
-		Pcall:Try(call, RunService:IsServer(), { ... }, remoteEvent.FireClient, plr)
+		Pcall(call, RunService:IsServer(), { ... }, remoteEvent.FireClient, plr)
 	end
 
 	-- Client -> Server
 	function event:FireServer(...)
-		Pcall:Try(call, RunService:IsClient(), { ... }, remoteEvent.FireServer)
+		Pcall(call, RunService:IsClient(), { ... }, remoteEvent.FireServer)
 	end
 
 	return event
@@ -47,11 +43,11 @@ function module:BindToHeader(callback: any)
 	end
 
 	local function tryl(p: buffer)
-		Pcall:Try(call, p)
+		Pcall(call, p)
 	end
 
 	local function trys(plr: Player, p: buffer)
-		Pcall:Try(call, p, plr)
+		Pcall(call, p, plr)
 	end
 
 	local c = RunService:IsServer() and remoteEvent.OnServerEvent:Connect(trys)

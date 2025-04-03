@@ -1,11 +1,11 @@
 --!strict
 
-local close = require(script.close)
-local insert = require(script.insert)
-local p = require(script.p)
-local player = require(script.player)
-local random = require(script.random)
-local team = require(script.team)
+local Close = require(script.Close)
+local Insert = require(script.Insert)
+local P = require(script.P)
+local Player = require(script.Player)
+local Random = require(script.Random)
+local Team = require(script.Team)
 
 local module = {}
 
@@ -14,15 +14,15 @@ function module.Player(str: string, plr: Player)
 
     local function set(n: string)
         if n == "close" then
-            insert(close(plr), tbl)
+            Insert(Close(plr), tbl)
         elseif n == "me" then
             table.insert(tbl, plr)
         elseif n == "random" then
-            table.insert(tbl, random())
+            table.insert(tbl, Random())
         elseif n:match("^%%%a") then
-            insert(p(n), tbl)
+            Insert(P(n), tbl)
         else
-            table.insert(tbl, player(n))
+            table.insert(tbl, Player(n))
         end
     end
 
@@ -39,7 +39,7 @@ function module.Player(str: string, plr: Player)
 end
 
 function module.Team(str: string)
-    local t = team(str)
+    local t = Team(str)
 
     return t
 end

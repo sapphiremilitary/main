@@ -6,8 +6,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local Services = ReplicatedStorage:WaitForChild("Services")
-local Pcall = require(Services.Pcall)
+local Functions = ReplicatedStorage:WaitForChild("Functions")
+local Pcall = require(Functions.Pcall)
 
 local messages = ReplicatedStorage:WaitForChild("Messages")
 
@@ -35,11 +35,11 @@ module.new = function(header: string, deleteOnRead: boolean?)
 	end
 
 	msg.Send = function(value: any)
-		Pcall:Try(call, value)
+		Pcall(call, value)
 	end
 
 	function msg:SendTo(recipients: { Player }, value: any)
-		Pcall:Try(call, value, recipients)
+		Pcall(call, value, recipients)
 	end
 
 	return msg
@@ -53,7 +53,7 @@ function module:BindToHeader(callback: any)
 	end
 
 	local function try(m: ForceField)
-		Pcall:Try(call)
+		Pcall(call)
 	end
 
 	local c = messages.ChildAdded:Connect(try)

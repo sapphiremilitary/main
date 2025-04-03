@@ -1,13 +1,13 @@
 --!strict
 
 local module = {
-	ff = require(script.ff),
-	kick = require(script.kick),
-	refresh = require(script.refresh),
-	respawn = require(script.respawn),
-	team = require(script.team),
-	teleport = require(script.teleport),
-	unff = require(script.unff),
+	ff = require(script.FF),
+	kick = require(script.Kick),
+	refresh = require(script.Refresh),
+	respawn = require(script.Respawn),
+	team = require(script.Team),
+	teleport = require(script.Teleport),
+	unff = require(script.Unff),
 }
 
 return module

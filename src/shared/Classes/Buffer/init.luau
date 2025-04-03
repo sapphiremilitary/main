@@ -1,8 +1,4 @@
 --!strict
---[[
-	Used to serialize most data (see: uids) types we'll be sending over the network. A hard 1024 byte limit (1kb)
-	is set on buffers.
-]]
 
 local Number = require(script.Number)
 

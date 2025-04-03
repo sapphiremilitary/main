@@ -1,10 +1,5 @@
 --!strict
 
---local ServerScriptService = game:GetService("ServerScriptService")
-
---local Services = ServerScriptService:WaitForChild("Services")
---local Save = require(Services.Save)
-
 local power = {
 	guest = 0,
 	mod = 1,

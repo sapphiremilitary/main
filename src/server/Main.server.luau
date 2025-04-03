@@ -3,10 +3,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local autoexec = ServerScriptService:WaitForChild("Autoexec")
+local Functions = ReplicatedStorage:WaitForChild("Functions")
+local Pcall = require(Functions.Pcall)
 
-local Services = ReplicatedStorage:WaitForChild("Services")
-local Pcall = require(Services.Pcall)
+local Autoexec = ServerScriptService:WaitForChild("Autoexec")
 
 function init(m: ModuleScript)
 	assert(m and m:IsA("ModuleScript"))
@@ -16,11 +16,11 @@ function init(m: ModuleScript)
 end
 
 function try(m: Instance)
-	Pcall:Try(init, m)
+	Pcall(init, m)
 end
 
-local c = autoexec:GetChildren()
+local c = Autoexec:GetChildren()
 for _, m in c do
 	try(m)
 end
-autoexec.ChildAdded:Connect(try)
+Autoexec.ChildAdded:Connect(try)

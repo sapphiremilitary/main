@@ -26,12 +26,12 @@ function module:GetBytes(x: number)
 
 	local len = math.max(1, math.ceil(bits / 8))
 	local t = { 1, 2, 4, 8 }
-	while not table.find(t, len) and len < 8 do -- ROBLOX only has read/write operations for 1, 2, 4, and 8 byte numbers.
+	while not table.find(t, len) and len < 8 do
 		len += 1
 	end
 
 	local _, r = math.modf(x)
-	if not (r == 0) then -- x is a float, clamp to 4 or 8 bytes
+	if not (r == 0) then
 		len = len > 4 and 8 or 4
 	end
 	assert(len < 8)
@@ -39,7 +39,7 @@ function module:GetBytes(x: number)
 	return len
 end
 
-function module:GetReadFormat(i: number): (buffer, number) -> number
+function module:GetReadFormat(i: number)
 	local k, v = next(format)
 	while not (v == i) do
 		k, v = next(format, k)
@@ -49,7 +49,7 @@ function module:GetReadFormat(i: number): (buffer, number) -> number
 	return f
 end
 
-function module:GetWriteFormat(x: number): ((buffer, number, number) -> (), number)
+function module:GetWriteFormat(x: number)
 	local len = module:GetBytes(x)
 	len *= 8 -- bit conversion
 
