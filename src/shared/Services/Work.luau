@@ -4,11 +4,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Functions = ReplicatedStorage:WaitForChild("Functions")
-local Wrap = require(Functions.Wrap)
+local Partial = require(Functions.Partial)
 
 local m = 0
-local i = 0
-local t = 0
 
 local module = {}
 
@@ -16,7 +14,7 @@ module.init = function()
 	task.spawn(set)
 end
 
-function module:Benchmark(f: (...any) -> any, ...)
+function module:Benchmark(f: any, ...)
 	local c = os.clock()
 	f(...)
 	c = os.clock() - c
@@ -33,12 +31,15 @@ function module:GetRate(T: number)
 		return r
 	end
 
-	local f = Wrap(get, T)
+	local f = Partial(get, T)
 
 	return f
 end
 
 function set()
+	local i = 0
+	local t = 0
+
 	while RunService:IsRunning() do
 		local c = os.clock()
 		RunService.Heartbeat:Wait()
