@@ -22,21 +22,23 @@ function module:Count(tbl: {})
 end
 
 function module:GetBytes(x: number)
-	local bits = math.log(math.max(1, math.abs(x)), 2)
+	local c = math.max(1, math.abs(x))
+	local b = math.log(math.max(c), 2)
+	b = math.ceil(b / 8) -- bits to bytes
 
-	local len = math.max(1, math.ceil(bits / 8))
+	local l = math.max(1, b)
 	local t = { 1, 2, 4, 8 }
-	while not table.find(t, len) and len < 8 do
-		len += 1
+	while not table.find(t, l) and l < 8 do
+		l += 1
 	end
 
 	local _, r = math.modf(x)
 	if not (r == 0) then
-		len = len > 4 and 8 or 4
+		l = l > 4 and 8 or 4
 	end
-	assert(len < 8)
+	assert(l < 8)
 
-	return len
+	return l
 end
 
 function module:GetReadFormat(i: number)
