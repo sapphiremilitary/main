@@ -1,19 +1,21 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Functions = ReplicatedStorage:WaitForChild("Functions")
+local GetCharacters = require(Functions.GetCharacters)
 local PlayerFromHit = require(Functions.PlayerFromHit)
 
 local module = {}
 
-module.new = function(cframe: CFrame, size: Vector3, rate: number)
+module.new = function(cf: CFrame, s: Vector3, Rate: () -> number)
 	local a = {}
+	local e = true
+	local i = {}
+
 	a.Entered = Instance.new("BindableEvent")
 	a.Removed = Instance.new("BindableEvent")
 
-	local e = true
 	function a:Destroy()
 		e = false
 		a.Entered:Destroy()
@@ -21,28 +23,12 @@ module.new = function(cframe: CFrame, size: Vector3, rate: number)
 	end
 
 	function a:Move(to: CFrame)
-		cframe = to
+		cf = to
 	end
 
-	local function chars()
-		local c = {}
-		for _, plr in Players:GetPlayers() do
-			table.insert(c, plr.Character)
-		end
-
-		return c
-	end
-
-	local i = {}
 	local function listen()
 		while e do
-			local p = OverlapParams.new()
-			p.FilterType = Enum.RaycastFilterType.Include
-			local c = chars()
-			p:AddToFilter(c)
-
-			local h = workspace:GetPartBoundsInBox(cframe, size, p)
-			local l = { PlayerFromHit(unpack(h)) }
+			local l = module.GetPlayers(cf, s)
 			if #l > #i then
 				a.Entered:Fire(l)
 			elseif #l < #i then
@@ -50,16 +36,31 @@ module.new = function(cframe: CFrame, size: Vector3, rate: number)
 			end
 			i = l
 
-			task.wait(rate) -- preventing race conditions
+			local r = Rate()
+			task.wait(r) -- preventing race conditions
 		end
 	end
+
 	task.spawn(listen)
 
 	return a
 end
 
+function module.GetPlayers(...)
+	local p = OverlapParams.new()
+	p.FilterType = Enum.RaycastFilterType.Include
+	local c = GetCharacters()
+	p:AddToFilter(c)
+
+	local a = select(1, ...)
+	local h = typeof(a) == "table" and a or workspace:GetPartBoundsInBox(a, select(2, ...), p)
+	local l = { PlayerFromHit(unpack(h)) }
+
+	return l
+end
+
 function module:Raise(p: BasePart, length: number)
-	local cf = p.CFrame * CFrame.new(0, p.Size.Y/2, 0)
+	local cf = p.CFrame * CFrame.new(0, p.Size.Y / 2, 0)
 	local g = cf * CFrame.new(0, length, 0)
 	cf = cf:Lerp(g, 0.5)
 
