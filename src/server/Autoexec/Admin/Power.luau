@@ -28,7 +28,8 @@ function module:Get(plr: Player)
 	end
 
 	-- private server
-	p = game.PrivateServerOwnerId == plr.UserId and power.owner or p
+	local o = game.PrivateServerOwnerId == plr.UserId
+	p = o and power.owner or p
 
 	return p, p > 0
 end

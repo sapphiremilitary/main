@@ -23,17 +23,17 @@ function module:Benchmark(f: any, ...)
 end
 
 function module:GetRate(T: number)
-	local function get()
-		local r = 1 - m
-		r *= 0.05 -- 5% performance impact at most
-		r = 1 / (r / T)
-
-		return r
-	end
-
 	local f = Partial(get, T)
 
 	return f
+end
+
+function get(T: number)
+	local r = 1 - m
+	r *= 0.05 -- 5% reduction at most
+	r = 1 / (r / T)
+
+	return r
 end
 
 function set()

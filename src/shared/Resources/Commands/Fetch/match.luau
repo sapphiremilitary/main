@@ -21,5 +21,6 @@ return function(str: string, tbl: { Instance })
         i += 1
         imatch()
     end
+    
     return m[1]
 end
