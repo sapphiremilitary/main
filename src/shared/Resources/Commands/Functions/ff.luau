@@ -1,8 +1,8 @@
 --!strict
 
-return function(plr: Player)
-    local char = plr.Character
-    if char then
-        Instance.new("ForceField", char)
+return function(p: Player)
+    local c = p.Character
+    if c then
+        Instance.new("ForceField", c)
     end
 end

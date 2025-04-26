@@ -11,7 +11,6 @@ local r: { Enum.KeyCode | Enum.UserInputType } = {
 	Enum.KeyCode.D,
 	Enum.KeyCode.I,
 	Enum.KeyCode.O,
-	Enum.KeyCode.Slash,
 	Enum.UserInputType.MouseButton1,
 	Enum.UserInputType.MouseButton2,
 }
@@ -26,11 +25,11 @@ module.new = function(n: string, f: any, k)
 	check(k)
 
 	function kb:Bind()
-		local f = find(k)
-		while f do
-			local kb = b[f]
+		local e = find(kb.key)
+		while e do
+			local kb = b[e]
 			kb:Unbind()
-			f = find(k)
+			e = find(k)
 		end
 
 		table.insert(b, kb)
@@ -41,9 +40,9 @@ module.new = function(n: string, f: any, k)
 		check(k)
 		kb:Unbind()
 
-		local f = find(k)
-		if f then
-			local t = b[f]
+		local e = find(k)
+		if e then
+			local t = b[e]
 			t:Unbind()
 			t.key = kb.key
 			t:Bind()
@@ -82,7 +81,7 @@ function find(f)
 	return k
 end
 
-function module:GetActive()
+function module:GetKeybinds()
 	local a = {}
 	for _, kb in b do
 		a[kb.name] = kb.key.Name

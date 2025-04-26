@@ -13,14 +13,11 @@ module.new = function(origin: Vector3, direction: Vector3)
     local p = RaycastParams.new()
     p.IgnoreWater = true
 
-    -- calculating size of ray
     local h = origin + direction
     local d = (origin - h).Magnitude
     local s = Vector3.new(0.5, 0.5, d)
 
-    -- instance from raycast
     local i
-
     local hit = workspace:Blockcast(CFrame.new(origin), s, direction, p)
     i = hit and (PlayerFromHit(hit.Instance) or hit.Instance)
 

@@ -1,5 +1,5 @@
 --!strict
 
-return function(plr: Player)
-    plr:LoadCharacter()
+return function(p: Player)
+    p:LoadCharacter()
 end

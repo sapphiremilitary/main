@@ -19,7 +19,6 @@ local module = {}
 function module:Get(plr: Player)
 	local p = power.guest
 
-	-- power from sapphire military
 	local r = plr:GetRankInGroup(id)
 	local k, v = next(rp)
 	while k do
@@ -27,7 +26,6 @@ function module:Get(plr: Player)
 		k, v = next(rp, k)
 	end
 
-	-- private server
 	local o = game.PrivateServerOwnerId == plr.UserId
 	p = o and power.owner or p
 

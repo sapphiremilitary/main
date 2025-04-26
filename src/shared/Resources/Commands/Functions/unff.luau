@@ -1,12 +1,12 @@
 --!strict
 
-return function(plr: Player)
-    local char = plr.Character
-    if char then
-        local ff = char:FindFirstChildOfClass("ForceField")
+return function(p: Player)
+    local c = p.Character
+    if c then
+        local ff = c:FindFirstChild("ForceField")
         while ff do
             ff:Destroy()
-            ff = char:FindFirstChildOfClass("ForceField")
+            ff = c:FindFirstChild("ForceField")
         end
     end
 end

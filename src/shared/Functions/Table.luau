@@ -2,15 +2,11 @@
 
 local module = {}
 
-module.duplicate = function()
+module.clone = function()
 	local t = {}
 	for k, v in t do
 		local T = typeof(v)
-		if T == "table" then
-			t[k] = module.duplicate(v)
-		else
-			t[k] = v
-		end
+		t[k] = T == "table" and module.clone(v) or v
 	end
 
 	return t

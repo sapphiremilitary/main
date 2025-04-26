@@ -3,8 +3,8 @@
 local Players = game:GetService("Players")
 
 return function()
-    local tbl = Players:GetPlayers()
+    local t = Players:GetPlayers()
     local r = Random.new()
     
-    return tbl[r:NextInteger(1, #tbl)]
+    return t[r:NextInteger(1, #t)]
 end

@@ -2,21 +2,19 @@
 
 local module = {}
 
--- first argument in tbl is a list
-module.recursive = function(tbl: {}, f: (...any) -> ())
-    local at = tbl[1]
+module.recursive = function(t, f)
+    local at = t[1]
     assert(at and typeof(at) == "table")
 
-    local T = {unpack(tbl)}
+    local T = {unpack(t)}
     table.remove(T, 1)
     for _, v in at do
         f(v, unpack(T))
     end
 end
 
--- tbl is shallow
-module.unpack = function(tbl: {}, f: (...any) -> ())
-    f(unpack(tbl))
+module.unpack = function(t, f)
+    f(unpack(t))
 end
 
 return module

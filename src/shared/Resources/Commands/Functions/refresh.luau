@@ -1,13 +1,14 @@
 --!strict
 
-return function(plr: Player)
-    local char = plr.Character
-    if char then
-        local pivot = char:GetPivot()
-        plr:LoadCharacter()
-        assert(plr.Character)
-        plr.Character:PivotTo(pivot)
+return function(p: Player)
+    local c = p.Character
+    if c then
+        local pivot = c:GetPivot()
+        p:LoadCharacter()
+
+        assert(p.Character)
+        p.Character:PivotTo(pivot)
     else
-        plr:LoadCharacter()
+        p:LoadCharacter()
     end
 end

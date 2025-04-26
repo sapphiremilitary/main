@@ -51,6 +51,7 @@ function read(packet: buffer, o: number): (any, number)
 			table.insert(tbl, v)
 			o += len
 		end
+
 		return tbl
 	end
 
@@ -182,6 +183,7 @@ function sizeof(v: any)
 			i += sizeof(k)
 			i += sizeof(tv)
 		end
+		
 		return i
 	end
 

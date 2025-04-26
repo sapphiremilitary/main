@@ -1,5 +1,5 @@
 --!strict
 
-return function(plr: Player, team: Team)
-    plr.Team = team
+return function(p: Player, t: Team)
+    p.Team = t
 end
