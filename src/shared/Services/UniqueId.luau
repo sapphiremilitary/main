@@ -47,12 +47,12 @@ function sanitize(o: Instance)
 		if not p then
 			-- reserving uid for 5 seconds
 			local i = table.find(ids, o) :: number
-			local guid = HttpService:GenerateGUID(true)
-			ids[i] = guid
+			local g = HttpService:GenerateGUID(true)
+			ids[i] = g
 			task.wait(5)
 
 			-- releasing uid
-			i = table.find(ids, guid) :: number
+			i = table.find(ids, g) :: number
 			table.remove(ids, i)
 
 			c:Disconnect()
