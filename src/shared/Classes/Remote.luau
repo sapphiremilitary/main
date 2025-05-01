@@ -24,12 +24,18 @@ module.new = function(header: string)
 
 	-- Server -> Client
 	function event:FireClient(plr, ...)
-		Try(call, RunService:IsServer(), { ... }, RemoteEvent.FireClient, plr)
+		local s = RunService:IsServer()
+		local f = RemoteEvent.FireClient
+
+		Try(call, s, { ... }, f, plr)
 	end
 
 	-- Client -> Server
 	function event:FireServer(...)
-		Try(call, RunService:IsClient(), { ... }, RemoteEvent.FireServer)
+		local c = RunService:IsClient()
+		local f = RemoteEvent.FireServer
+
+		Try(call, c, { ... }, f)
 	end
 
 	return event

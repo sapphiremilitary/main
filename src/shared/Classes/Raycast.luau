@@ -13,23 +13,25 @@ module.new = function(origin: Vector3, direction: Vector3)
     local p = RaycastParams.new()
     p.IgnoreWater = true
 
-    local h = origin + direction
-    local d = (origin - h).Magnitude
+    local at = origin + direction
+    local d = (origin - at).Magnitude
     local s = Vector3.new(0.5, 0.5, d)
+    local cf = CFrame.new(origin)
 
     local i
-    local hit = workspace:Blockcast(CFrame.new(origin), s, direction, p)
-    i = hit and (PlayerFromHit(hit.Instance) or hit.Instance)
+    local h = workspace:Blockcast(cf, s, direction, p)
+    i = h and (PlayerFromHit(h.Instance) or h.Instance)
 
     function r:GetInstance()
         return i
     end
 
-    function r:Include(team: Team?)
-        local v = i:IsA("Player") and i.Team == team
-        v = v and i
+    function r:Filter(team: Team?)
+        local p: any
+        p = i:IsA("Player") and i.Team == team
+        p = p and i
 
-        return v
+        return p
     end
 
     return r

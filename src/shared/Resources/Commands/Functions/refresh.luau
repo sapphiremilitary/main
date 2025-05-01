@@ -1,6 +1,6 @@
 --!strict
 
-return function(p: Player)
+return function(p)
     local c = p.Character
     if c then
         local pivot = c:GetPivot()

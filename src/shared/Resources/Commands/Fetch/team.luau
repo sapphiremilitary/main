@@ -7,7 +7,7 @@ local Teams = game:GetService("Teams")
 
 return function(s)
     local t = Match(s, Teams:GetTeams())
-    assert(t and t:IsA("Team"))
+    assert(t)
 
     return t
 end

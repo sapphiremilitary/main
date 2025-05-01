@@ -1,5 +1,5 @@
 --!strict
 
-return function(p: Player, t: Team)
+return function(p, t)
     p.Team = t
 end

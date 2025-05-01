@@ -2,8 +2,7 @@
 
 return function(f: any, ...): ...any
 	local a = { pcall(f, ...) }
-	local s = a[1]
-	if not s then
+	if not a[1] then
 		local t = debug.traceback()
 		warn(t)
 	end

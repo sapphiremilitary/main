@@ -1,19 +1,33 @@
 --!strict
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Functions = ReplicatedStorage:WaitForChild("Functions")
+
+local Table = require(Functions.Table)
+
+function get(i)
+	local c = i:FindFirstAncestorWhichIsA("Model")
+	local p = c and Players:GetPlayerFromCharacter(c)
+
+	return p
+end
 
 return function(...: BasePart)
-    local a = {...}
+	local a = { ... }
+	local l = {}
 
-    local l = {}
-    for _, i in a do
-        local c = i:FindFirstAncestorWhichIsA("Model")
-        local p = c and Players:GetPlayerFromCharacter(c)
+	for _, i in a do
+		local p = get(i)
 
-        if p and not table.find(l, p) then
-            table.insert(l, p)
-        end
-    end
+		local d: any
+		d = table.find(l, p)
+		d = not d and p
 
-    return unpack(l)
+		table.insert(l, d)
+		Table.clean(l)
+	end
+
+	return unpack(l)
 end

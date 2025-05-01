@@ -11,25 +11,25 @@ local Remote = require(Classes.Remote)
 local module = {}
 
 function module:GetResponse(header: string, ...)
-    assert(RunService:IsClient())
+	assert(RunService:IsClient())
 
-    local v
-    local function set(...)
-        v = {...}
-    end
-    local cb = Callback.new(header, set)
+	local v
+	local function set(...)
+		v = { ... }
+	end
+	local cb = Callback.new(header, set)
 
-    local event = Remote.new(header)
-    event:FireServer(...)
-    local t = Message:BindToHeader(cb)
-    local c = os.clock()
-    repeat
-        task.wait()
-    until v or os.clock() - c > 5
-    t:Disconnect()
-    
-    v = v or {}
-    return unpack(v)
+	local event = Remote.new(header)
+	event:FireServer(...)
+	local t = Message:BindToHeader(cb)
+	local c = os.clock()
+	repeat
+		task.wait()
+	until v or os.clock() - c > 5
+	t:Disconnect()
+
+	v = v or {}
+	return unpack(v)
 end
 
 return module

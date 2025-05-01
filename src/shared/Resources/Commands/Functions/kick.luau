@@ -1,7 +1,7 @@
 --!strict
 
-return function(p: Player, ...)
+return function(p, ...)
     local r = select(1, ...)
-    assert(not r or typeof(r) == "string") -- reason is nil or reason is a string
+    assert(typeof(r) == "string")
     p:Kick(r)
 end

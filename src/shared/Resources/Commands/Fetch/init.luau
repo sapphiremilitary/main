@@ -1,25 +1,27 @@
 --!strict
 
 local All = require(script.All)
-local Close = require(script.Close)
 local Insert = require(script.Insert)
 local P = require(script.P)
 local Player = require(script.Player)
+local Proximity = require(script.Proximity)
 local Random = require(script.Random)
 local Team = require(script.Team)
 
 local module = {}
 
-function module.Player(str: string, plr: Player)
+function module.Player(s, p)
     local t = {}
 
-    local function set(n: string)
+    local function set(n)
         if n == "all" then
             table.insert(t, All())
         elseif n == "close" then
-            Insert(Close(plr), t)
+            Insert(Proximity(p), t)
+        elseif n == "far" then
+            Insert(Proximity(p, true), t)
         elseif n == "me" then
-            table.insert(t, plr)
+            table.insert(t, p)
         elseif n == "random" then
             table.insert(t, Random())
         elseif n:match("^%%%a") then
@@ -29,26 +31,26 @@ function module.Player(str: string, plr: Player)
         end
     end
 
-    if str then
-        for n in str:gmatch("[%w%%]+") do
+    if s then
+        for n in s:gmatch("[%w%%]+") do
             n = string.lower(n)
             set(n)
         end
     else
-        table.insert(t, plr)
+        table.insert(t, p)
     end
 
     return t
 end
 
-function module.Team(str: string)
-    local t = Team(str)
+function module.Team(s)
+    local t = Team(s)
 
     return t
 end
 
-function module.Unpack(str: string)
-    return str
+function module.Unpack(s)
+    return s
 end
 
 return module

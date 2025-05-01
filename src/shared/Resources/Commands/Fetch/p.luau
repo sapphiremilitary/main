@@ -11,8 +11,8 @@ return function(s)
     s = T
     
     local t = Match(s, Teams:GetTeams())
-    assert(t and t:IsA("Team"))
-    local plrs = t:GetPlayers()
+    assert(t)
+    local l = t:GetPlayers()
     
-    return plrs
+    return l
 end
