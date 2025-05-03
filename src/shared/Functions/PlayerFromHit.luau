@@ -4,10 +4,9 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Functions = ReplicatedStorage:WaitForChild("Functions")
-
 local Table = require(Functions.Table)
 
-function get(i)
+function get(i: BasePart)
 	local c = i:FindFirstAncestorWhichIsA("Model")
 	local p = c and Players:GetPlayerFromCharacter(c)
 
@@ -16,8 +15,8 @@ end
 
 return function(...: BasePart)
 	local a = { ... }
+	
 	local l = {}
-
 	for _, i in a do
 		local p = get(i)
 
@@ -26,7 +25,7 @@ return function(...: BasePart)
 		d = not d and p
 
 		table.insert(l, d)
-		Table.clean(l)
+		Table.remove(l, false)
 	end
 
 	return unpack(l)

@@ -22,7 +22,7 @@ local ids: { any } = {}
 local module = {}
 
 function module:SetUID(obj: Instance)
-	-- obj has an attribute or obj shouldn't be registered
+	-- obj has an attribute or obj can't be registered
 	if obj:GetAttribute("uid") or not table.find(reg, obj.ClassName) then
 		return
 	end
@@ -31,7 +31,7 @@ function module:SetUID(obj: Instance)
 	obj:SetAttribute("uid", i)
 	table.insert(ids, i, obj)
 
-	sanitize(obj)
+	clean(obj)
 end
 
 function module:GetUID(obj: Instance)
@@ -40,9 +40,9 @@ function module:GetUID(obj: Instance)
 	return uid
 end
 
-function sanitize(o: Instance)
+function clean(o: Instance)
 	local c
-
+	
 	local function rm(p)
 		if not p then
 			-- reserving uid for 5 seconds
@@ -59,7 +59,8 @@ function sanitize(o: Instance)
 		end
 	end
 
-	c = o:GetPropertyChangedSignal("Parent"):Connect(rm)
+	local s = o:GetAttributeChangedSignal("Parent")
+	c = s:Connect(rm)
 end
 
 return module

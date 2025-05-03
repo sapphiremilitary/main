@@ -16,20 +16,22 @@ local rp = {
 
 local module = {}
 
-function module:Get(plr: Player)
-	local p = power.guest
+function module:Get(p: Player)
+	local c = power.guest
 
-	local r = plr:GetRankInGroup(id)
+	-- setting group power
+	local r = p:GetRankInGroup(id)
 	local k, v = next(rp)
 	while k do
-		p = r >= k and math.max(v, p) or p
+		c = r >= k and math.max(v, c) or c
 		k, v = next(rp, k)
 	end
 
-	local o = game.PrivateServerOwnerId == plr.UserId
-	p = o and power.owner or p
+	-- private server power
+	local o = game.PrivateServerOwnerId == p.UserId
+	c = o and power.owner or c
 
-	return p, p > 0
+	return c, c > 0
 end
 
 return module

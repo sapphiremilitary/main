@@ -17,23 +17,27 @@ local r: { Enum.KeyCode | Enum.UserInputType } = {
 
 local module = {}
 
-module.new = function(n: string, f: any, k)
+module.new = function(
+	name: string,
+	f: (string, Enum.UserInputState, InputObject) -> any,
+	key: Enum.KeyCode | Enum.UserInputType
+)
 	local kb = {}
-	kb.key = k
-	kb.name = n
+	kb.key = key
+	kb.name = name
 
-	check(k)
+	check(key)
 
 	function kb:Bind()
 		local e = find(kb.key)
 		while e do
 			local kb = b[e]
 			kb:Unbind()
-			e = find(k)
+			e = find(key)
 		end
 
 		table.insert(b, kb)
-		bind(n, f, false, kb.key)
+		bind(name, f, false, kb.key)
 	end
 
 	function kb:Swap(k)
@@ -55,7 +59,7 @@ module.new = function(n: string, f: any, k)
 	function kb:Unbind()
 		local i = table.find(b, kb)
 		table.remove(b, i)
-		ContextActionService:UnbindAction(n)
+		ContextActionService:UnbindAction(name)
 	end
 
 	return kb
@@ -70,6 +74,7 @@ function check(k)
 end
 
 function find(f)
+	-- finds index of keybind whose key matches f
 	local k
 	for i, kb in b do
 		if kb.key == f then
@@ -82,6 +87,7 @@ function find(f)
 end
 
 function module:GetKeybinds()
+	-- creates a list of keybinds
 	local a = {}
 	for _, kb in b do
 		a[kb.name] = kb.key.Name

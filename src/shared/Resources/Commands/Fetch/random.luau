@@ -4,9 +4,10 @@ local Players = game:GetService("Players")
 
 return function()
     local t = Players:GetPlayers()
-    local r: any 
-    r = Random.new()
-    r = t[r:NextInteger(1, #t)]
+    local r = Random.new()
     
-    return r
+    local i = r:NextInteger(1, #t)
+    local p = t[i]
+
+    return p
 end

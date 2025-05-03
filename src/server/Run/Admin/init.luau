@@ -16,18 +16,18 @@ function module:init()
 	Remote:BindToHeader(chat)
 end
 
-function exec(t, p)
+function exec(t: { string }, p: Player)
 	local m = t[1]
 	assert(m and m:match("^:") and #m > 1)
-
-	local a = split(m)
-	local c = find(a)
-	local f = fetch(c, a, p)
+	
+	local a = split(m) -- splitting message into args
+	local c = find(a) -- finding command from a[1]
+	local f = fetch(c, a, p) -- fetching arguments for c.call
 
 	c.call(f, c.func)
 end
 
-function fetch(c, a, p)
+function fetch(c: { fetch: { (...any) -> any } }, a: { string }, p: Player)
 	local d = {}
 	for i, f in c.fetch do
 		local s = a[i]
@@ -37,7 +37,7 @@ function fetch(c, a, p)
 	return d
 end
 
-function find(a)
+function find(a: { string })
 	local cmd
 	local k, v
 	repeat
@@ -52,7 +52,7 @@ function find(a)
 	return cmd
 end
 
-function split(m)
+function split(m: string)
 	m = m:sub(2, #m)
 	local a = {}
 	for v in m:gmatch("[%w%p%%]+") do

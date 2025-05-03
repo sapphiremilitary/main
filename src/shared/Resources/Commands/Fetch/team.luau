@@ -5,7 +5,7 @@ local Match = require(Fetch.Match)
 
 local Teams = game:GetService("Teams")
 
-return function(s)
+return function(s: string)
     local t = Match(s, Teams:GetTeams())
     assert(t)
 

@@ -10,12 +10,12 @@ local Team = require(script.Team)
 
 local module = {}
 
-function module.Player(s, p)
+function module.Player(s: string, p: Player)
     local t = {}
 
     local function set(n)
         if n == "all" then
-            table.insert(t, All())
+            Insert(All(), t)
         elseif n == "close" then
             Insert(Proximity(p), t)
         elseif n == "far" then
@@ -32,9 +32,9 @@ function module.Player(s, p)
     end
 
     if s then
-        for n in s:gmatch("[%w%%]+") do
-            n = string.lower(n)
-            set(n)
+        for m in s:gmatch("[%w%%]+") do
+            m = string.lower(m)
+            set(m)
         end
     else
         table.insert(t, p)
@@ -43,13 +43,13 @@ function module.Player(s, p)
     return t
 end
 
-function module.Team(s)
+function module.Team(s: string)
     local t = Team(s)
 
     return t
 end
 
-function module.Unpack(s)
+function module.Unpack(s: string)
     return s
 end
 

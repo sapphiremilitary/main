@@ -1,5 +1,5 @@
 --!strict
 
-return function(p)
+return function(p: Player)
     p:LoadCharacter()
 end

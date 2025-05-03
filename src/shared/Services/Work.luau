@@ -14,7 +14,8 @@ module.init = function()
 	task.spawn(set)
 end
 
-function module:Benchmark(f: any, ...)
+function module:Benchmark(f: (any) -> (), ...)
+	-- benchmarks function with dataset
 	local c = os.clock()
 	f(...)
 	c = os.clock() - c
@@ -36,6 +37,7 @@ function get(T: number)
 	return r
 end
 
+-- sets mean frame time post simulation
 function set()
 	local i = 0
 	local t = 0
@@ -45,6 +47,7 @@ function set()
 		RunService.Heartbeat:Wait()
 		c = os.clock() - c
 
+		-- mean frame time, total frame time, amount of frames
 		m = t >= 1 and t / i or m
 		t = t < 1 and t + c or 0
 		i = t > 0 and i + 1 or 0

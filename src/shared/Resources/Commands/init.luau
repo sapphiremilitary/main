@@ -51,9 +51,9 @@ local module = {
 } :: {
 	{
 		call: (...any) -> (),
-		fetch: { (...any) -> any },
+		fetch: { (string, ...any) -> any },
 		filter: boolean?,
-		func: (...any) -> (),
+		func: (Player, ...any) -> (),
 		words: { string },
 	}
 }

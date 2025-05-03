@@ -1,6 +1,6 @@
 --!strict
 
-return function(f, ...)
+return function(f: (...any) -> any, ...)
     local args = {...}
     local function c()
         return f(unpack(args))
