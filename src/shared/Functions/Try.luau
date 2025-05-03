@@ -3,7 +3,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Functions = ReplicatedStorage:WaitForChild("Functions")
-
 local Table = require(Functions.Table)
 
 function log(t)

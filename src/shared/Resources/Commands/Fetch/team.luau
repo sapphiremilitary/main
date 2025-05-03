@@ -1,9 +1,9 @@
 --!strict
 
+local Teams = game:GetService("Teams")
+
 local Fetch = script.Parent
 local Match = require(Fetch.Match)
-
-local Teams = game:GetService("Teams")
 
 return function(s: string)
     local t = Match(s, Teams:GetTeams())
