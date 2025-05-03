@@ -9,10 +9,11 @@ local Run = ServerScriptService:WaitForChild("Run")
 local Try = require(Functions.Try)
 
 function init(m: ModuleScript)
-	assert(m and m:IsA("ModuleScript"))
-	local tbl = require(m) :: { init: () -> () }
-	assert(tbl.init)
-	tbl.init()
+	local f = require :: (ModuleScript) -> { init: () -> ()? }
+	local t = f(m)
+
+	assert(t.init)
+	t.init()
 end
 
 function try(m: Instance)

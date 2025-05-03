@@ -13,51 +13,55 @@ local format = {
 
 local module = {}
 
-function module:Count(tbl: {})
-	local c = 0
-	for _, _ in tbl do
-		c += 1
-	end
-	return c
-end
-
 function module:GetBytes(x: number)
-	local c = math.max(1, math.abs(x))
-	local b = math.log(math.max(c), 2)
-	b = math.ceil(b / 8) -- bits to bytes
+	-- converts x to bytes
+	local T = x
+	T = math.max(1, math.abs(x))
+	T = math.log(math.max(T), 2)
+	T = math.ceil(T / 8)
 
-	local l = math.max(1, b)
-	local t = { 1, 2, 4, 8 }
-	while not table.find(t, l) and l < 8 do
-		l += 1
+	local function find(t: number)
+		local l = { 1, 2, 4, 8 }
+		local i = table.find(l, t)
+
+		return i
 	end
 
+	-- setting our byte size to the closest usable vablue
+	local i = math.max(1, T)
+	while not find(i) and i < 8 do
+		i += 1
+	end
+
+	-- accounting for floating point values
 	local _, r = math.modf(x)
-	if not (r == 0) then
-		l = l > 4 and 8 or 4
-	end
-	assert(l < 8)
+	i = (r > 0 or r < 0) and (i > 4 and 8 or 4) or i
+	i = x > 2 ^ 32 - 1 and 8 or i
+	assert(i <= 8)
 
-	return l
+	return i
 end
 
 function module:GetReadFormat(i: number)
+	-- obtaining format from u8
 	local k, v = next(format)
 	while not (v == i) do
 		k, v = next(format, k)
 	end
 
-	local f = buffer[`read{k}`]
+	local f = buffer[`read{k}`] :: (buffer, number) -> any
 	return f
 end
 
 function module:GetWriteFormat(x: number)
-	local len = module:GetBytes(x)
-	len *= 8 -- bit conversion
+	-- length of x
+	local l = module:GetBytes(x)
+	l *= 8
 
 	local _, r = math.modf(x)
-	local s = `{not (r == 0) and "f" or x >= 0 and "u" or x < 0 and "i"}{len}`
-	local f = buffer[`write{s}`]
+	local s = `{(not (r == 0) or l > 32) and "f" or x >= 0 and "u" or x < 0 and "i"}{l}`
+	local f = buffer[`write{s}`] :: (buffer, number, number) -> ()
+
 	return f, format[s]
 end
 

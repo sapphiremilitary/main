@@ -8,7 +8,7 @@ local PlayerFromHit = require(Functions.PlayerFromHit)
 
 local module = {}
 
-module.new = function(cf: CFrame, s: Vector3, Rate: () -> number)
+module.new = function(cf: CFrame, size: Vector3, Rate: () -> number)
 	local a = {}
 	local e = true
 	local i = {}
@@ -26,9 +26,9 @@ module.new = function(cf: CFrame, s: Vector3, Rate: () -> number)
 		cf = to
 	end
 
-	local function listen()
+	local function set()
 		while e do
-			local l = module.GetPlayers(cf, s)
+			local l = get(cf, size)
 			if #l > #i then
 				a.Entered:Fire(l)
 			elseif #l < #i then
@@ -36,30 +36,35 @@ module.new = function(cf: CFrame, s: Vector3, Rate: () -> number)
 			end
 			i = l
 
+			-- preventing race conditions
 			local r = Rate()
-			task.wait(r) -- preventing race conditions
+			task.wait(r)
 		end
 	end
 
-	task.spawn(listen)
+	task.spawn(set)
 
 	return a
 end
 
-function module.GetPlayers(...)
+function get(...)
+	local a = {...}
+
 	local p = OverlapParams.new()
 	p.FilterType = Enum.RaycastFilterType.Include
 	local c = GetCharacters()
 	p:AddToFilter(c)
 
-	local a = select(1, ...)
-	local h = typeof(a) == "table" and a or workspace:GetPartBoundsInBox(a, select(2, ...), p)
+	-- storing players in area
+	local t = a[1]
+	local h = typeof(t) == "table" and t or workspace:GetPartBoundsInBox(t, a[2], p)
 	local l = { PlayerFromHit(unpack(h)) }
 
 	return l
 end
 
 function module:Raise(p: BasePart, length: number)
+	-- assures our area is flush with part
 	local cf = p.CFrame * CFrame.new(0, p.Size.Y / 2, 0)
 	local g = cf * CFrame.new(0, length, 0)
 	cf = cf:Lerp(g, 0.5)

@@ -13,63 +13,61 @@ local Try = require(Functions.Try)
 
 local module = {}
 
-module.new = function(header: string, deleteOnRead: boolean?)
+module.new = function(header: string, once: boolean?)
 	local m = {}
 
-	local function call(v, r)
-		if typeof(v) == "table" then
-			v = HttpService:JSONEncode(v)
-		end
-
+	local function call(v, r: { Player }?)
+		-- creating message
+		v = adapt(v)
 		check(v)
 		local t = all(r)
-		new(header, v, deleteOnRead, t)
+		new(header, v, once, t)
 	end
 
-	function m:Send(v)
-		Try(call, v)
+	function m:Fire(value)
+		Try(call, value)
 	end
 
-	function m:SendTo(recipients: { Player }, v)
-		Try(call, v, recipients)
+	function m:FireClients(recipients: { Player }, value)
+		Try(call, value, recipients)
 	end
 
 	return m
 end
 
-function module:BindToHeader(f: any)
+function module:BindToHeader(f: (string, ...any) -> ())
 	local function call(m: ForceField)
-		assert(m:IsA("ForceField"))
 		local c = module:Read(m)
 		f(c.header, c.value)
 	end
 
 	local function try(m: ForceField)
-		Try(call)
+		Try(call, m)
 	end
 
 	local c = Messages.ChildAdded:Connect(try)
 	return c
 end
 
-function module:Read(msg: ForceField)
-	local h, v, d, r =
-		msg:GetAttribute("h"), 
-		msg:GetAttribute("v"), 
-		msg:GetAttribute("d"), 
-		msg:GetAttribute("r")
+function module:Read(ff: ForceField)
+	-- getting message values
+	local h = ff:GetAttribute("h") :: string?
+	local v = ff:GetAttribute("v") :: any
+	local o = ff:GetAttribute("o") :: boolean?
+	local r = ff:GetAttribute("r") :: string?
+	assert(h)
 
 	if r then
 		assert(RunService:IsClient())
 
+		-- checking if message can be read
 		local t = HttpService:JSONDecode(r)
 		local i = table.find(t, Players.LocalPlayer.Name)
 		assert(i)
 	end
 
-	v = typeof(v) == "string" and HttpService:JSONDecode(v) or v
-	if d then
-		msg:Destroy()
+	if o then
+		ff:Destroy()
 	end
 
 	local c = {}
@@ -79,15 +77,17 @@ function module:Read(msg: ForceField)
 	return c
 end
 
-function new(h, v, d, p)
-	local ff = Instance.new("ForceField") -- ForceField is the quickest Instance to create
+function new(h: string, v: any, o: boolean?, p: string?)
+	-- creating message
+	local ff = Instance.new("ForceField")
 	ff.Name = HttpService:GenerateGUID(true)
 	ff:SetAttribute("h", h)
 	ff:SetAttribute("v", v)
-	ff:SetAttribute("d", d)
+	ff:SetAttribute("o", o)
 	ff:SetAttribute("r", p)
 	ff.Parent = Messages
 	Debris:AddItem(ff, 5)
+
 	return ff
 end
 
@@ -97,18 +97,32 @@ function check(v)
 	assert(c)
 end
 
-function all(r: any?)
-	local c, s = RunService:IsClient(), RunService:IsServer()
-	assert(r and #r > 1 and s or c)
-
-	local T
-	local t = r or {}
-	for i, plr in t do
-		t[i] = plr.Name
-		T = HttpService:JSONEncode(t)
+function adapt(v)
+	local t
+	if typeof(v) == "table" then
+		t = HttpService:JSONDecode(v)
 	end
 
-	return T
+	return t or v
+end
+
+function all(r: { Player }?)
+	-- checking recipients
+	local s = RunService:IsServer()
+	local c = r and s
+	assert(c or not s)
+
+	local v
+
+	-- converting list into json
+	local T = {} :: any
+	local t = r or T
+	for i, p in t do
+		t[i] = p.Name
+		v = HttpService:JSONEncode(t)
+	end
+
+	return v
 end
 
 return module

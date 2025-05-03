@@ -1,7 +1,5 @@
 --!strict
 
-return function(p: Player, ...)
-    local r = select(1, ...)
-    assert(typeof(r) == "string")
+return function(p: Player, r: string)
     p:Kick(r)
 end

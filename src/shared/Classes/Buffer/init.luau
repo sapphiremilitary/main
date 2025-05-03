@@ -8,83 +8,89 @@ local uids: { [string]: number } = {
 	number = 3,
 	Vector3 = 4,
 	CFrame = 5,
-	tblop = 6, -- table initialization
-	tblcl = 7, -- table termination
+	tblop = 6,
+	tblcl = 7,
 }
 
 local module = {}
 
 module.new = function(...)
-	local args = { ... }
-	local var = #args > 1 and args or args[1]
-	local uid = getUid(var)
-	assert(uid) -- checking if var can be serialized
+	-- checking if var can be serialized
+	local a = { ... }
+	local v = #a > 1 and a or { a[1] }
+	local u = getUid(v)
+	assert(u > 0)
 
-	local size = sizeof(var)
-	assert(size <= 1024) -- 1kb
-	local packet = buffer.create(size)
-	write(packet, 0, uid, var)
+	-- creating packet
+	local s = sizeof(v)
+	assert(s <= 1024) -- 1kb
+	local p = buffer.create(s)
+	write(p, 0, u, v)
 
-	return packet
+	return p
 end
 
 function module:Read(packet: buffer)
 	local v = read(packet, 0)
 
+	-- returning data from packet
 	local d = {}
-	d.header = v[1]
+	d.header = v[1] :: string
 	table.remove(v, 1)
 	d.value = { unpack(v) }
 
 	return d
 end
 
-function read(packet: buffer, o: number): (any, number)
-	local uid = buffer.readu8(packet, o) -- getting uid of byte
-	local n = Number:Count(uids)
-	assert(uid <= n) -- checking if proceeding data can be read
+function read(p: buffer, o: number): (any, number)
+	-- retrieving uid
+	local u = buffer.readu8(p, o)
+	assert(u > 0)
 
-	local function iread(i: number): {}
-		local tbl = {}
+	local function dive(i: number): {}
+		local t = {}
 		for i = 1, i do
-			local v, len = read(packet, o)
-			table.insert(tbl, v)
-			o += len
+			local v, l = read(p, o)
+			table.insert(t, v)
+			o += l
 		end
 
-		return tbl
+		return t
 	end
 
 	local v: any
-	local len = 0
+	local r = 0
 
-	if uid == uids.string then
+	if u == uids.string then
+		-- first byte at offset is string length
 		o += 1
-		local strlen = buffer.readu8(packet, o) -- length of string
+		local l = buffer.readu8(p, o)
 		o += 1
-		v = buffer.readstring(packet, o, strlen)
-		len += 2 + strlen -- uid + strlen + #str
-	elseif uid == uids.boolean then
+		v = buffer.readstring(p, o, l)
+		r += 2 + l
+	elseif u == uids.boolean then
+		-- converting number to boolean
 		o += 1
-		v = buffer.readu8(packet, o)
+		v = buffer.readu8(p, o)
 		v = v == 1
-		len += 2 -- uid + value
-	elseif uid == uids.number then
+		r += 2
+	elseif u == uids.number then
 		o += 1
-		local i = buffer.readu8(packet, o)
+		local i = buffer.readu8(p, o)
 		local f = Number:GetReadFormat(i)
 		o += 1
-		v = f(packet, o)
+		v = f(p, o)
 		local s = Number:GetBytes(v)
-		len += 2 + s
-	elseif uid == uids.Vector3 then
+		r += 2 + s
+	elseif u == uids.Vector3 then
+		-- reads the next 3 values
 		o += 1
-		local tbl = iread(3)
+		local tbl = dive(3)
 		v = Vector3.new(tbl[1], tbl[2], tbl[3])
-		len += sizeof(v)
-	elseif uid == uids.CFrame then
+		r += sizeof(v)
+	elseif u == uids.CFrame then
 		o += 1
-		local tbl = iread(12)
+		local tbl = dive(12)
 		v = CFrame.new(
 			tbl[1],
 			tbl[2],
@@ -99,118 +105,123 @@ function read(packet: buffer, o: number): (any, number)
 			tbl[11],
 			tbl[12]
 		)
-		len += sizeof(v)
-	elseif uid == uids.tblop then -- table write
+		r += sizeof(v)
+	elseif u == uids.tblop then
 		v = {}
 		o += 1
-		local kv
+
+		-- writes to v until a terminator is found
+		local T
 		repeat
-			local rv, s = read(packet, o)
+			local t, s = read(p, o)
 			o += s
-			if not kv then
-				kv = rv
+			if not T then
+				T = t
 			else
-				v[kv] = rv
-				kv = nil
+				v[T] = t
+				T = nil
 			end
-			uid = buffer.readu8(packet, o)
-		until uid == uids.tblcl
-		len += sizeof(v)
+			u = buffer.readu8(p, o)
+		until u == uids.tblcl
+		r += sizeof(v)
 	end
 
-	return v, len
+	return v, r
 end
 
-function write(packet: buffer, o: number, uid: number, v: any)
-	local n = Number:Count(uids)
-	assert(uid <= n)
+function write(p: buffer, o: number, u: number, v: any)
+	assert(u > 0)
 
-	local function iwrite(tbl: {})
-		for i = 1, #tbl do
-			local tv = tbl[i]
-			local s = sizeof(tv)
-			uid = getUid(tv)
-			write(packet, o + 1, uid, tv)
+	local function loop(t: {})
+		-- writes each variable to p
+		for i = 1, #t do
+			local T = t[i]
+			local s = sizeof(T)
+			u = getUid(T)
+			write(p, o + 1, u, T)
 			o += s
 			i += 1
 		end
 	end
 
-	if uid == uids.string then
-		buffer.writeu8(packet, o, uids.string)
+	if u == uids.string then
+		-- uid, len, string
+		buffer.writeu8(p, o, uids.string)
 		o += 1
-		buffer.writeu8(packet, o, #v)
+		buffer.writeu8(p, o, #v)
 		o += 1
-		buffer.writestring(packet, o, v)
-	elseif uid == uids.boolean then
-		buffer.writeu8(packet, o, uids.boolean)
+		buffer.writestring(p, o, v)
+	elseif u == uids.boolean then
+		buffer.writeu8(p, o, uids.boolean)
 		o += 1
-		buffer.writeu8(packet, o, v and 1 or 0)
-	elseif uid == uids.number then
-		buffer.writeu8(packet, o, uids.number)
+		buffer.writeu8(p, o, v and 1 or 0)
+	elseif u == uids.number then
+		-- uid, format, number
+		buffer.writeu8(p, o, uids.number)
 		local f, i = Number:GetWriteFormat(v)
 		o += 1
-		buffer.writeu8(packet, o, i)
+		buffer.writeu8(p, o, i)
 		o += 1
-		f(packet, o, v)
-	elseif uid == uids.Vector3 then
-		buffer.writeu8(packet, o, uids.Vector3)
-		iwrite({ v.X, v.Y, v.Z })
-	elseif uid == uids.CFrame then
-		buffer.writeu8(packet, o, uids.CFrame)
-		iwrite({ v:GetComponents() })
-	elseif uid == uids.tblop then
-		buffer.writeu8(packet, o, uids.tblop)
-		local p = {}
-		for k, tv in v do
-			table.insert(p, k)
-			table.insert(p, tv)
+		f(p, o, v)
+	elseif u == uids.Vector3 then
+		buffer.writeu8(p, o, uids.Vector3)
+		loop({ v.X, v.Y, v.Z })
+	elseif u == uids.CFrame then
+		buffer.writeu8(p, o, uids.CFrame)
+		loop({ v:GetComponents() })
+	elseif u == uids.tblop then
+		buffer.writeu8(p, o, uids.tblop)
+		local t = {}
+		for k, T in v do
+			table.insert(t, k)
+			table.insert(t, T)
 		end
-		iwrite(p)
+		loop(t)
 		o += 1
-		buffer.writeu8(packet, o, uids.tblcl)
+		buffer.writeu8(p, o, uids.tblcl)
 	end
 end
 
 function sizeof(v: any)
-	local uid = getUid(v)
-	local n = Number:Count(uids)
-	assert(uid <= n)
+	local u = getUid(v)
+	assert(u > 0)
 
-	local function ilen(tbl: {})
+	local function len(t: {})
 		local i = 0
-		for k, tv in tbl do
+		for k, T in t do
 			i += sizeof(k)
-			i += sizeof(tv)
+			i += sizeof(T)
 		end
-		
+
 		return i
 	end
 
-	local len
+	local l
 
-	if uid == uids.string then
-		len = 2 + #v
-	elseif uid == uids.boolean then
-		len = 2
-	elseif uid == uids.number then
+	if u == uids.string then
+		l = 2 + #v
+	elseif u == uids.boolean then
+		l = 2
+	elseif u == uids.number then
 		local s = Number:GetBytes(v)
-		len = 2 + s
-	elseif uid == uids.Vector3 then
-		len = 2 + ilen({ v.X, v.Y, v.Z }) - 1 -- -1 since ilen assumes we're counting a table (which has an extra byte for a terminator)
-	elseif uid == uids.CFrame then
-		len = 2 + ilen({ v:GetComponents() }) - 1
-	elseif uid == uids.tblop then
-		len = 2 + ilen(v)
+		l = 2 + s
+	elseif u == uids.Vector3 then
+		-- subtracting 1 byte since len assumes we're counting a table
+		l = 2 + len({ v.X, v.Y, v.Z }) - 1
+	elseif u == uids.CFrame then
+		l = 2 + len({ v:GetComponents() }) - 1
+	elseif u == uids.tblop then
+		l = 2 + len(v)
 	end
 
-	return len
+	return l
 end
 
 function getUid(v)
 	local t = typeof(v)
-	local uid = uids[t] or t == "table" and uids.tblop or math.huge
-	return uid
+	local u = uids[t] or t == "table" and uids.tblop or 0
+
+	return u
 end
 
 return module

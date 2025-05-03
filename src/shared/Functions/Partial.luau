@@ -1,9 +1,9 @@
 --!strict
 
 return function(f: (...any) -> any, ...)
-    local args = {...}
+    local a = {...}
     local function c()
-        return f(unpack(args))
+        return f(unpack(a))
     end
 
     return c

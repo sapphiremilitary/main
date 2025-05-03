@@ -9,7 +9,7 @@ module.new = function(v)
 	o.value = v
 	o.group = group
 
-	function o:Bind(s: RBXScriptSignal, f)
+	function o:Bind(s: RBXScriptSignal, f: ({ value: any }) -> ())
 		s:Connect(f)
 	end
 
